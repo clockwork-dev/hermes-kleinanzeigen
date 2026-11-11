@@ -1,0 +1,6 @@
+# Core lightweight cross-platform dependencies
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+fake-useragent>=1.4.0
+
+# Optional browser fallback (needed if your IP hits HTTP 403): playwright>=1.49.0
