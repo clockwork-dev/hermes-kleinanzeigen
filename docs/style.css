@@ -1,10 +1,10 @@
 /* ==========================================================================
    hermes-kleinanzeigen Documentation Website Stylesheet
-   Designed under Antislop guidelines:
+   Designed under Antislop guidelines & Security / Accessibility audited:
    - High contrast WCAG AA compliant
    - Purposeful color palette (Slate / Emerald / Cyan)
    - Zero gratuitous glow/gradients; clear hierarchy
-   - Full mobile responsiveness & keyboard focus affordances
+   - Full mobile responsiveness with accessible toggle menu & skip link
    ========================================================================== */
 
 /* --- Custom Properties & Theme Palette --- */
@@ -119,6 +119,25 @@ body {
   flex-direction: column;
 }
 
+/* Skip link for screen readers & keyboard navigation */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 10px;
+  background-color: var(--accent-primary);
+  color: var(--accent-primary-text);
+  padding: 8px 16px;
+  z-index: 10000;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transition: top var(--transition-fast);
+}
+
+.skip-link:focus {
+  top: 10px;
+}
+
 /* Accessible focus outline */
 :focus-visible {
   outline: 2px solid var(--focus-ring);
@@ -174,6 +193,7 @@ input[type="text"], input[type="number"] {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-md);
+  position: relative;
 }
 
 .brand {
@@ -218,6 +238,12 @@ input[type="text"], input[type="number"] {
   color: var(--text-main);
 }
 
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
 .control-btn {
   display: inline-flex;
   align-items: center;
@@ -236,6 +262,27 @@ input[type="text"], input[type="number"] {
 
 .control-btn:hover {
   border-color: var(--border-strong);
+}
+
+/* Mobile Toggle Hamburger Button */
+.mobile-toggle-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 38px;
+  height: 38px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+}
+
+.hamburger-bar {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background-color: var(--text-main);
+  border-radius: 1px;
 }
 
 /* --- Sections Common --- */
@@ -864,8 +911,31 @@ input[type="text"], input[type="number"] {
     gap: var(--space-sm);
   }
 
+  .mobile-toggle-btn {
+    display: flex;
+  }
+
   .site-nav {
-    display: none; /* simple mobile hide for main anchors */
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--bg-surface);
+    border-bottom: 1px solid var(--border-subtle);
+    flex-direction: column;
+    align-items: stretch;
+    padding: var(--space-md);
+    gap: var(--space-sm);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .site-nav.nav-open {
+    display: flex;
+  }
+
+  .nav-link {
+    padding: var(--space-sm) var(--space-md);
   }
 
   .footer-inner {

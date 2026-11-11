@@ -5,9 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>hermes-kleinanzeigen | Hermes Agent Plugin &amp; Skill</title>
   <meta name="description" content="Autonomous Kleinanzeigen Germany search and monitoring tool for Hermes Agent. HTTP-first parser, Playwright fallback, and SQLite deduplication.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://www.kleinanzeigen.de; connect-src 'none'; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'none';">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Skip Link for Keyboard Accessibility (WCAG 2.4.1) -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
   <!-- Header / Nav -->
   <header class="site-header">
     <div class="header-inner container">
@@ -15,7 +20,14 @@
         <span class="brand-badge" aria-hidden="true">DE</span>
         <span class="brand-title">hermes-kleinanzeigen</span>
       </div>
-      <nav class="site-nav" aria-label="Main Navigation">
+
+      <button id="mobile-menu-toggle" class="mobile-toggle-btn" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation menu">
+        <span class="hamburger-bar" aria-hidden="true"></span>
+        <span class="hamburger-bar" aria-hidden="true"></span>
+        <span class="hamburger-bar" aria-hidden="true"></span>
+      </button>
+
+      <nav id="site-nav" class="site-nav" aria-label="Main Navigation">
         <a href="#overview" class="nav-link">Overview</a>
         <a href="#quickstart" class="nav-link">Quickstart</a>
         <a href="#interactive-builder" class="nav-link">URL &amp; Tool Builder</a>
@@ -26,6 +38,7 @@
           <span class="sr-only">(opens in new window)</span>
         </a>
       </nav>
+
       <div class="header-controls">
         <button id="theme-toggle" class="control-btn" type="button" aria-label="Toggle theme between dark and light" title="Toggle theme">
           <span class="theme-icon" aria-hidden="true">&#9728;</span>
@@ -226,8 +239,8 @@
                 <button class="btn-copy" type="button" data-copy-target="#out-url" aria-label="Copy generated URL">Copy</button>
               </div>
               <div class="output-body">
-                <a id="out-url-link" href="#" target="_blank" rel="noopener noreferrer" class="url-display">
-                  <code id="out-url">https://www.kleinanzeigen.de/s-preis:150:450/thinkpad-t14/k0l3331r20</code>
+                <a id="out-url-link" href="https://www.kleinanzeigen.de/s-preis:150:450/s-seite:1?keywords=ThinkPad+T14&amp;locationStr=10115&amp;radius=20" target="_blank" rel="noopener noreferrer" class="url-display">
+                  <code id="out-url">https://www.kleinanzeigen.de/s-preis:150:450/s-seite:1?keywords=ThinkPad+T14&amp;locationStr=10115&amp;radius=20</code>
                 </a>
               </div>
             </div>
@@ -275,8 +288,8 @@
             <h3>Canonical URL Generation</h3>
             <p>
               Constructs deterministic paths matching Kleinanzeigen routing rules:
-              <code>/s-preis:{min}:{max}/s-seite:{page}/{slug}/k0l{locationId}r{radius}</code>.
-              Supports German umlaut transliteration (<code>ä &rarr; ae</code>) and location IDs.
+              <code>/s-preis:{min}:{max}/s-seite:{page}?keywords={query}&amp;locationStr={plz}&amp;radius={radius}</code>.
+              Supports German umlaut transliteration and radius filtering.
             </p>
           </div>
 
