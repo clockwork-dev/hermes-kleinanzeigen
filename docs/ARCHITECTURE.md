@@ -10,18 +10,23 @@ Related documentation:
 
 ---
 
-## 1. Dual Plugin + Standalone Skill Architecture
+## 1. Primary Plugin vs. Fallback Skill Architecture
 
-The repository is structured so a single codebase supports two installation models without code duplication:
+The repository is structured so a single codebase supports two installation and execution models:
 
-1. **Native Hermes Plugin** (via root [plugin.yaml](../plugin.yaml) and [`__init__.py`](../__init__.py)):
-   - Installed via `hermes plugins install`.
+1. **Primary Model: Native Hermes Plugin** (via root [plugin.yaml](../plugin.yaml) and [`__init__.py`](../__init__.py)):
+   - **Recommended for all users.**
+   - Installed with one command: `hermes plugins install clockwork-dev/hermes-kleinanzeigen --enable --yes-deps`.
    - Declares `manifest_version: 2`, `kind: standalone`, and runtime `pip_dependencies` in `plugin.yaml`.
-   - Exposes `kleinanzeigen_search` and `kleinanzeigen_monitor` tools directly to the Hermes model and registers the bundled `kleinanzeigen` skill (`skills/kleinanzeigen/SKILL.md`) via `ctx.register_skill(...)`.
-2. **Standalone Hermes Skill** (via [`skills/kleinanzeigen/`](../skills/kleinanzeigen/)):
-   - Installed via `hermes skills install clockwork-dev/hermes-kleinanzeigen/kleinanzeigen` or copied directly into a Hermes `skills/` directory.
+   - Exposes `kleinanzeigen_search` and `kleinanzeigen_monitor` tools directly to the Hermes LLM and registers the bundled `kleinanzeigen` skill documentation (`skills/kleinanzeigen/SKILL.md`) via `ctx.register_skill(...)`.
+   - Guarantees zero-friction dependency resolution and avoids terminal/shell parsing overhead.
+
+2. **Secondary / Fallback Model: Standalone Hermes Skill** (via [`skills/kleinanzeigen/`](../skills/kleinanzeigen/)):
+   - **Reserved for minimal / restricted environments** where plugin management is disabled.
+   - Installed via `hermes skills install clockwork-dev/hermes-kleinanzeigen/kleinanzeigen` or copied into a Hermes `skills/` directory.
    - Ships its own [`SKILL.md`](../skills/kleinanzeigen/SKILL.md), [`requirements.txt`](../skills/kleinanzeigen/requirements.txt), [`LICENSE`](../skills/kleinanzeigen/LICENSE), and self-contained [`scripts/`](../skills/kleinanzeigen/scripts/).
-   - Intentionally excludes scaffolding files forbidden by Hermes's `skill_linter` (`README.md`, `CHANGELOG.md`, `install.sh`, `.env`, `.env.example`, `.gitignore`) inside `skills/kleinanzeigen/`.
+   - Excludes files forbidden by Hermes's `skill_linter` (`README.md`, `CHANGELOG.md`, `install.sh`, `.env`, `.gitignore`).
+   - Requires manual environment provisioning via `hermes pm environment` or `uv` to resolve runtime dependencies.
 
 ```mermaid
 flowchart TD

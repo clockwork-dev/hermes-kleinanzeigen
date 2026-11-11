@@ -60,41 +60,45 @@ An open-source [Hermes Agent](https://github.com/NousResearch/hermes-agent) **pl
 
 ## Installation
 
-### Option A — Install as Hermes Plugin (Recommended)
+### Primary & Recommended: Hermes Plugin
 
-Installing the repository as a Hermes plugin automatically installs core Python dependencies (`requests`, `beautifulsoup4`, `fake-useragent`) into Hermes's managed environment, registers the native `kleinanzeigen_search` and `kleinanzeigen_monitor` tools, and registers the `kleinanzeigen` skill (`kleinanzeigen:kleinanzeigen`) with **zero manual `.venv` setup**:
+Installing as a **native Hermes plugin** is the recommended method. Hermes Plugin Manager automatically manages dependencies (`requests`, `beautifulsoup4`, `fake-useragent`) in Hermes's environment, registers native function tools (`kleinanzeigen_search`, `kleinanzeigen_monitor`), and provides the skill instructions with **zero manual virtualenv configuration**:
 
 ```bash
-# Install from GitHub (or full HTTPS/SSH Git URL)
+# One-command installation from GitHub
 hermes plugins install clockwork-dev/hermes-kleinanzeigen --enable --yes-deps
 
 # Or install from a local git clone via file:// URL
 hermes plugins install "file:///path/to/hermes-kleinanzeigen" --enable --yes-deps
 ```
 
-Verify the plugin state at any time:
+Verify the plugin state:
 
 ```bash
 hermes plugins list
 hermes plugins doctor kleinanzeigen
 ```
 
-### Option B — Install as Standalone Skill
+---
 
-Install just `skills/kleinanzeigen/` via `hermes skills install`:
+### Secondary / Fallback: Standalone Skill (Advanced / Minimal Environments)
+
+> [!NOTE]
+> Use this method **only** if you are operating in a minimal Hermes setup where plugins are disabled or restricted. In standalone skill mode, Hermes **does not** automatically install Python dependencies, and the agent must execute scripts through the shell (`terminal`) instead of calling native tools.
+
+Install only `skills/kleinanzeigen/` via `hermes skills install`:
 
 ```bash
 hermes skills install clockwork-dev/hermes-kleinanzeigen/kleinanzeigen
 ```
 
-Or copy `skills/kleinanzeigen/` manually:
-
+Or manually copy `skills/kleinanzeigen/`:
 - **Linux / macOS**: `~/.hermes/skills/kleinanzeigen/`
-- **Windows**: `%LOCALAPPDATA%\hermes\skills\productivity\kleinanzeigen\` (Hermes defaults `HERMES_HOME` to `%LOCALAPPDATA%\hermes`, not `%USERPROFILE%\.hermes`).
+- **Windows**: `%LOCALAPPDATA%\hermes\skills\productivity\kleinanzeigen\`
 
-#### Cross-Platform Dependency Bootstrap (`hermes pm environment`)
+#### Managing Dependencies for Standalone Skill Mode
 
-In standalone skill mode, Hermes's built-in `hermes pm environment` creates or reuses an isolated side environment under `$HERMES_HOME/environments/kleinanzeigen/` using Hermes's bundled `uv` (works even when `uv` is not on `PATH` and never modifies Hermes's own environment):
+Because standalone skills do not auto-install dependencies, provision an isolated environment with Hermes PM:
 
 ```bash
 # Linux / macOS / Windows Git Bash
@@ -114,7 +118,7 @@ $env:PY = hermes pm environment kleinanzeigen `
 & $env:PY "$env:LOCALAPPDATA\hermes\skills\productivity\kleinanzeigen\scripts\search_cli.py" "fahrrad" --plz 10115 --radius 10 --max-price 500
 ```
 
-For standalone CLI usage outside Hermes (`uv` or standard `venv`):
+For manual CLI usage outside of Hermes (`uv` or standard `venv`):
 
 ```bash
 # Linux / macOS

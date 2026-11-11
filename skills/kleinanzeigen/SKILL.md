@@ -31,8 +31,13 @@ Search classifieds listings on `kleinanzeigen.de` (Germany) by keyword, 5-digit 
 
 ## Prerequisites & Execution
 
-1. **Plugin mode (preferred when available)**: If native Hermes plugin tools `kleinanzeigen_search` and `kleinanzeigen_monitor` are registered, call them directly — dependencies and `$HERMES_HOME/plugin-data/kleinanzeigen/seen_ads.db` are managed automatically with zero shell setup.
-2. **Standalone skill mode (via `terminal`)**: Bundled modules live in `scripts/__init__.py`, `scripts/kleinanzeigen_api.py`, `scripts/search_cli.py`, and `scripts/monitor.py` with dependencies declared in [requirements.txt](requirements.txt). Resolve a cross-platform Python interpreter in one step (works on Linux, macOS, and Windows Git Bash even without `uv` on `PATH`):
+1. **Primary: Native Plugin Mode (Preferred)**:
+   When installed as a Hermes plugin, the native tools `kleinanzeigen_search` and `kleinanzeigen_monitor` are registered directly in your context. **Always use these tools first** — all dependencies and the SQLite database (`$HERMES_HOME/plugin-data/kleinanzeigen/seen_ads.db`) are managed automatically with zero terminal overhead and fast JSON responses.
+
+2. **Secondary / Fallback: Standalone Skill Mode (via `terminal`)**:
+   If the native plugin tools are not available (e.g. running in a minimal environment without plugin support), invoke the bundled Python scripts in `scripts/` via the Hermes `terminal` tool. Dependencies are declared in [requirements.txt](requirements.txt).
+
+   Resolve an isolated Python interpreter using Hermes PM (works on Linux, macOS, and Windows Git Bash):
 
 ```bash
 if [ -x "${HERMES_SKILL_DIR}/.venv/Scripts/python.exe" ]; then
