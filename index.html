@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>hermes-kleinanzeigen | Hermes Agent Plugin &amp; Skill</title>
+  <meta name="description" content="Autonomous Kleinanzeigen Germany search and monitoring tool for Hermes Agent. HTTP-first parser, Playwright fallback, and SQLite deduplication.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://www.kleinanzeigen.de; connect-src 'none'; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'none';">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Skip Link for Keyboard Accessibility (WCAG 2.4.1) -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Header / Nav -->
+  <header class="site-header">
+    <div class="header-inner container">
+      <div class="brand">
+        <span class="brand-badge" aria-hidden="true">DE</span>
+        <span class="brand-title">hermes-kleinanzeigen</span>
+      </div>
+
+      <button id="mobile-menu-toggle" class="mobile-toggle-btn" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation menu">
+        <span class="hamburger-bar" aria-hidden="true"></span>
+        <span class="hamburger-bar" aria-hidden="true"></span>
+        <span class="hamburger-bar" aria-hidden="true"></span>
+      </button>
+
+      <nav id="site-nav" class="site-nav" aria-label="Main Navigation">
+        <a href="#overview" class="nav-link">Overview</a>
+        <a href="#quickstart" class="nav-link">Quickstart</a>
+        <a href="#interactive-builder" class="nav-link">URL &amp; Tool Builder</a>
+        <a href="#architecture" class="nav-link">Architecture</a>
+        <a href="#tools-reference" class="nav-link">Tool Reference</a>
+        <a href="https://github.com/clockwork-dev/hermes-kleinanzeigen" class="nav-link external-link" target="_blank" rel="noopener noreferrer">
+          GitHub
+          <span class="sr-only">(opens in new window)</span>
+        </a>
+      </nav>
+
+      <div class="header-controls">
+        <button id="theme-toggle" class="control-btn" type="button" aria-label="Toggle theme between dark and light" title="Toggle theme">
+          <span class="theme-icon" aria-hidden="true">&#9728;</span>
+          <span class="theme-text">Theme</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <!-- Hero Section -->
+    <section id="overview" class="section hero-section">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <p class="section-tag">Hermes Agent Integration</p>
+          <h1 class="hero-title">Automate classifieds search and monitoring on Kleinanzeigen Germany.</h1>
+          <p class="hero-lead">
+            A dual-mode tool for Hermes Agent. Execute structured keyword searches with 5-digit postal code radii and price filters, or run SQLite-backed polling cron jobs with Telegram-ready notifications.
+          </p>
+          <div class="hero-actions">
+            <a href="#quickstart" class="btn btn-primary">Get Started</a>
+            <a href="#interactive-builder" class="btn btn-secondary">Test Query Builder</a>
+          </div>
+        </div>
+
+        <div class="hero-codebox" aria-label="Terminal Installation Preview">
+          <div class="codebox-header">
+            <span class="terminal-dots" aria-hidden="true">
+              <span class="dot dot-red"></span>
+              <span class="dot dot-yellow"></span>
+              <span class="dot dot-green"></span>
+            </span>
+            <span class="codebox-title">Hermes Agent CLI</span>
+            <button class="btn-copy" type="button" data-copy-target="#hero-install-cmd" aria-label="Copy installation command">
+              Copy
+            </button>
+          </div>
+          <pre class="codebox-body"><code id="hero-install-cmd">hermes plugins install clockwork-dev/hermes-kleinanzeigen --enable --yes-deps</code></pre>
+          <div class="codebox-meta">
+            <span>&#10003; 1-step installation</span>
+            <span>&#10003; Auto-installed dependencies</span>
+            <span>&#10003; 2 native LLM tools</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quickstart & Installation Matrix -->
+    <section id="quickstart" class="section bg-alt">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Installation &amp; Setup</h2>
+          <p>Choose between the primary Hermes Plugin distribution or the fallback standalone skill.</p>
+        </div>
+
+        <div class="mode-matrix">
+          <!-- Primary Plugin Card -->
+          <article class="mode-card primary-mode">
+            <div class="mode-header">
+              <span class="mode-pill pill-primary">Primary &amp; Recommended</span>
+              <h3>Native Hermes Plugin</h3>
+            </div>
+            <p class="mode-desc">
+              Recommended for all standard Hermes Agent setups. Dependencies are automatically provisioned inside Hermes's isolated virtualenv, and tools are exposed directly to the model as native function calls.
+            </p>
+            <div class="terminal-block">
+              <div class="terminal-label">
+                <span>Installation Command</span>
+                <button class="btn-copy" type="button" data-copy-target="#cmd-plugin-install" aria-label="Copy plugin install command">Copy</button>
+              </div>
+              <pre><code><span class="terminal-prompt">$</span> <span id="cmd-plugin-install">hermes plugins install clockwork-dev/hermes-kleinanzeigen --enable --yes-deps</span></code></pre>
+            </div>
+            <div class="terminal-block">
+              <div class="terminal-label">
+                <span>Verification Command</span>
+                <button class="btn-copy" type="button" data-copy-target="#cmd-plugin-verify" aria-label="Copy plugin verify command">Copy</button>
+              </div>
+              <pre><code><span class="terminal-prompt">$</span> <span id="cmd-plugin-verify">hermes plugins doctor kleinanzeigen</span></code></pre>
+            </div>
+            <ul class="feature-checklist">
+              <li><strong>Zero virtualenv management:</strong> Hermes manages <code>requests</code>, <code>beautifulsoup4</code>, and <code>fake-useragent</code> automatically.</li>
+              <li><strong>Native tool calling:</strong> Zero subprocess and shell escaping overhead; agent calls <code>kleinanzeigen_search</code> directly.</li>
+              <li><strong>Automatic storage:</strong> SQLite database path automatically resolves inside <code>$HERMES_HOME/plugin-data/</code>.</li>
+            </ul>
+          </article>
+
+          <!-- Fallback Skill Card -->
+          <article class="mode-card fallback-mode">
+            <div class="mode-header">
+              <span class="mode-pill pill-neutral">Secondary / Fallback</span>
+              <h3>Standalone Hermes Skill</h3>
+            </div>
+            <p class="mode-desc">
+              For restricted environments where the plugin manager is disabled. The agent interacts with Python scripts via shell execution in <code>terminal</code>.
+            </p>
+            <div class="terminal-block">
+              <div class="terminal-label">
+                <span>Skill Installation</span>
+                <button class="btn-copy" type="button" data-copy-target="#cmd-skill-install" aria-label="Copy skill install command">Copy</button>
+              </div>
+              <pre><code><span class="terminal-prompt">$</span> <span id="cmd-skill-install">hermes skills install clockwork-dev/hermes-kleinanzeigen/kleinanzeigen</span></code></pre>
+            </div>
+            <div class="terminal-block">
+              <div class="terminal-label">
+                <span>Manual Dependency Provisioning</span>
+                <button class="btn-copy" type="button" data-copy-target="#cmd-skill-deps" aria-label="Copy skill deps command">Copy</button>
+              </div>
+              <pre><code><span class="terminal-prompt">$</span> <span id="cmd-skill-deps">hermes pm environment --add "requests&gt;=2.31.0" "beautifulsoup4&gt;=4.12.0" "fake-useragent&gt;=1.5.0"</span></code></pre>
+            </div>
+            <ul class="feature-checklist">
+              <li>Requires manual dependency installation into Hermes Python environment.</li>
+              <li>Agent invokes <code>skills/kleinanzeigen/scripts/search_cli.py</code> via terminal command.</li>
+              <li>Useful when running in restricted minimal environments.</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive URL & Tool Query Builder -->
+    <section id="interactive-builder" class="section">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Interactive Query &amp; Tool Call Builder</h2>
+          <p>Configure search parameters to inspect the canonical German Kleinanzeigen URL and the exact JSON tool call passed to Hermes Agent.</p>
+        </div>
+
+        <div class="builder-layout">
+          <!-- Controls Form -->
+          <form id="query-form" class="builder-form" onsubmit="return false;">
+            <div class="form-group">
+              <label for="inp-keyword">Keyword / Search Query</label>
+              <input type="text" id="inp-keyword" value="ThinkPad T14" placeholder="e.g. ThinkPad T14, iPhone 13, Rennrad" required>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="inp-plz">Postal Code (German PLZ)</label>
+                <input type="text" id="inp-plz" value="10115" maxlength="5" pattern="[0-9]{5}" placeholder="5 digits (e.g. 10115)">
+                <small class="form-hint">5-digit German postal code.</small>
+              </div>
+              <div class="form-group col">
+                <label for="inp-radius">Radius (km)</label>
+                <select id="inp-radius">
+                  <option value="0">0 km (exact location)</option>
+                  <option value="5">5 km</option>
+                  <option value="10">10 km</option>
+                  <option value="20" selected>20 km</option>
+                  <option value="30">30 km</option>
+                  <option value="50">50 km</option>
+                  <option value="100">100 km</option>
+                  <option value="150">150 km</option>
+                  <option value="200">200 km</option>
+                </select>
+                <small class="form-hint">Accepted values: 0, 5, 10, 20, 30, 50, 100, 150, 200.</small>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="inp-min-price">Min Price (&euro;)</label>
+                <input type="number" id="inp-min-price" min="0" placeholder="e.g. 150" value="150">
+              </div>
+              <div class="form-group col">
+                <label for="inp-max-price">Max Price (&euro;)</label>
+                <input type="number" id="inp-max-price" min="0" placeholder="e.g. 450" value="450">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="inp-limit">Result Limit</label>
+                <input type="number" id="inp-limit" min="1" max="100" value="25">
+              </div>
+              <div class="form-group col">
+                <label for="inp-fetch-mode">Fetch Mode</label>
+                <select id="inp-fetch-mode">
+                  <option value="auto" selected>auto (HTTP first, Playwright fallback)</option>
+                  <option value="http">http (Strictly requests/BS4)</option>
+                  <option value="browser">browser (Headless Playwright)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group checkbox-group">
+              <label class="checkbox-label" for="inp-exclude-topad">
+                <input type="checkbox" id="inp-exclude-topad" checked>
+                <span>Exclude sponsored Top-Anzeige listings</span>
+              </label>
+            </div>
+          </form>
+
+          <!-- Generated Outputs -->
+          <div class="builder-outputs" aria-live="polite">
+            <div class="output-card">
+              <div class="output-header">
+                <span class="output-label">Canonical Kleinanzeigen URL</span>
+                <button class="btn-copy" type="button" data-copy-target="#out-url" aria-label="Copy generated URL">Copy</button>
+              </div>
+              <div class="output-body">
+                <a id="out-url-link" href="https://www.kleinanzeigen.de/s-preis:150:450/s-seite:1?keywords=ThinkPad+T14&amp;locationStr=10115&amp;radius=20" target="_blank" rel="noopener noreferrer" class="url-display">
+                  <code id="out-url">https://www.kleinanzeigen.de/s-preis:150:450/s-seite:1?keywords=ThinkPad+T14&amp;locationStr=10115&amp;radius=20</code>
+                </a>
+              </div>
+            </div>
+
+            <div class="output-card">
+              <div class="output-header">
+                <span class="output-label">Hermes Agent Native Tool Call (`kleinanzeigen_search`)</span>
+                <button class="btn-copy" type="button" data-copy-target="#out-tool-call" aria-label="Copy tool call JSON">Copy</button>
+              </div>
+              <pre class="output-code"><code id="out-tool-call">{
+  "query": "ThinkPad T14",
+  "postal_code": "10115",
+  "radius": 20,
+  "min_price": 150,
+  "max_price": 450,
+  "limit": 25,
+  "exclude_topads": true,
+  "fetch_mode": "auto"
+}</code></pre>
+            </div>
+
+            <div class="output-card">
+              <div class="output-header">
+                <span class="output-label">CLI Equivalent Command</span>
+                <button class="btn-copy" type="button" data-copy-target="#out-cli-cmd" aria-label="Copy CLI command">Copy</button>
+              </div>
+              <pre class="output-code"><code id="out-cli-cmd">python skills/kleinanzeigen/scripts/search_cli.py "ThinkPad T14" --plz 10115 --radius 20 --min-price 150 --max-price 450 --limit 25</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture & Technical Pipeline -->
+    <section id="architecture" class="section bg-alt">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Technical Architecture</h2>
+          <p>Engineered for lightweight agent execution with resilient fallback mechanisms.</p>
+        </div>
+
+        <div class="architecture-grid">
+          <div class="arch-card">
+            <div class="arch-number">01</div>
+            <h3>Canonical URL Generation</h3>
+            <p>
+              Constructs deterministic paths matching Kleinanzeigen routing rules:
+              <code>/s-preis:{min}:{max}/s-seite:{page}?keywords={query}&amp;locationStr={plz}&amp;radius={radius}</code>.
+              Supports German umlaut transliteration and radius filtering.
+            </p>
+          </div>
+
+          <div class="arch-card">
+            <div class="arch-number">02</div>
+            <h3>Dual-Engine Fetcher</h3>
+            <p>
+              Executes HTTP-first requests using desktop Chrome/Edge user-agents. If Akamai or IP-range blocks return HTTP 403, the engine falls back to headless Playwright with aggressive subresource blocking (images, fonts, stylesheets) for speed.
+            </p>
+          </div>
+
+          <div class="arch-card">
+            <div class="arch-number">03</div>
+            <h3>Hybrid Astro / SSR Parser</h3>
+            <p>
+              Extracts listings from modern Astro SSR hydration markers (<code>&lt;astro-island&gt;</code>, <code>topAd</code> flags, <code>[data-image-container]</code>) and classic BEM card classes. Excludes paid promotion tiles when requested.
+            </p>
+          </div>
+
+          <div class="arch-card">
+            <div class="arch-number">04</div>
+            <h3>SQLite Deduplication</h3>
+            <p>
+              Maintains query states using SHA-256 hashes in a local SQLite table (<code>seen_ads</code>). Cron monitoring polls intervals without emitting duplicate alerts, outputting Telegram Markdown or JSON.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tool Reference -->
+    <section id="tools-reference" class="section">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Tool &amp; Script Reference</h2>
+          <p>Available tools in the Hermes runtime.</p>
+        </div>
+
+        <div class="reference-table-wrapper">
+          <table class="reference-table">
+            <thead>
+              <tr>
+                <th scope="col">Tool / Script</th>
+                <th scope="col">Type</th>
+                <th scope="col">Parameters</th>
+                <th scope="col">Output</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>kleinanzeigen_search</code></td>
+                <td>Plugin Tool</td>
+                <td><code>query</code>, <code>postal_code</code>, <code>radius</code>, <code>min_price</code>, <code>max_price</code>, <code>limit</code>, <code>exclude_topads</code>, <code>fetch_mode</code></td>
+                <td>Structured JSON object with <code>success</code>, <code>total_found</code>, <code>ads</code> array (id, title, price, location, url, image_url, shipping, description).</td>
+              </tr>
+              <tr>
+                <td><code>kleinanzeigen_monitor</code></td>
+                <td>Plugin Tool</td>
+                <td>Same as search plus <code>db_path</code>, <code>format</code> (<code>telegram</code> or <code>json</code>), <code>mark_seen</code> (boolean).</td>
+                <td>Returns only previously unseen listings. Tracks state in SQLite database.</td>
+              </tr>
+              <tr>
+                <td><code>search_cli.py</code></td>
+                <td>CLI Script</td>
+                <td><code>query [args...]</code> (<code>--plz</code>, <code>--radius</code>, <code>--min-price</code>, <code>--max-price</code>, <code>--limit</code>, <code>--browser</code>)</td>
+                <td>JSON array to stdout for scripting and shell parsing.</td>
+              </tr>
+              <tr>
+                <td><code>monitor.py</code></td>
+                <td>CLI Script</td>
+                <td><code>query [args...]</code> (<code>--db</code>, <code>--telegram</code>, <code>--format json</code>, <code>--dry-run</code>)</td>
+                <td>Standard output formatted as JSON or copy-paste Telegram Markdown alerts.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Compliance & Anti-bot Note -->
+        <div class="compliance-box">
+          <div class="compliance-title">
+            <span>&#9888; Anti-Bot Protection &amp; Ethical Scraping Policy</span>
+          </div>
+          <p>
+            This tool strictly adheres to honest scraping ethics. It does <strong>not</strong> attempt to bypass, crack, or solve CAPTCHAs, Cloudflare Turnstile, or anti-bot verification gates. When an anti-bot challenge is encountered, the fetcher raises an explicit <code>KleinanzeigenBlockedError</code> with clear diagnostic feedback. Sequential page crawling includes respectful delays.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-meta">
+        <p><strong>hermes-kleinanzeigen</strong> &bull; MIT Licensed</p>
+        <p class="footer-sub">Autonomous German classifieds search tool for <a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener noreferrer">Hermes Agent</a>.</p>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/clockwork-dev/hermes-kleinanzeigen" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+        <a href="https://github.com/clockwork-dev/hermes-kleinanzeigen/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">License (MIT)</a>
+        <a href="https://github.com/clockwork-dev/hermes-kleinanzeigen/blob/main/docs/ARCHITECTURE.md" target="_blank" rel="noopener noreferrer">Architecture Doc</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast for Copy Feedback -->
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden>Command copied to clipboard</div>
+
+  <script src="app.js"></script>
+</body>
+</html>
